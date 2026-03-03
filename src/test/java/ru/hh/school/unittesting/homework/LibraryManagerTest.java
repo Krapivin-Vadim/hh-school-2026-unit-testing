@@ -47,7 +47,8 @@ class LibraryManagerTest {
         Assertions.assertEquals(2, libraryManager.getAvailableCopies(HARRY_POTTER));
     }
 
-    @Disabled("Adds negative number of books")
+    @Disabled("The method should not add a negative number of books, as this may violate the logic of the borrowBook method. " +
+            "If this functionality is required, then the decreaseBook method should be created. (Probably :) )")
     @Test
     void shouldNotAddNegativeNumberOfBooks() {
         libraryManager.addBook(HARRY_POTTER, 10);
@@ -64,7 +65,7 @@ class LibraryManagerTest {
     }
 
     @Test
-    void shouldNotAllowBorrowUnavailableBook(){
+    void shouldNotAllowBorrowUnavailableBook() {
         Mockito.when(userService.isUserActive(Mockito.any())).thenReturn(true);
         libraryManager.addBook(HARRY_POTTER, 0);
         Assertions.assertFalse(libraryManager.borrowBook(HARRY_POTTER, "userId"));
@@ -85,10 +86,21 @@ class LibraryManagerTest {
     }
 
     @Test
-    void shouldReturnFalseWhenUserDidNotBorrow(){
+    void shouldReturnFalseWhenUserDidNotBorrow() {
         libraryManager.addBook(HARRY_POTTER, 2);
         libraryManager.borrowBook(HARRY_POTTER, "Vadim");
         Assertions.assertFalse(libraryManager.returnBook(HARRY_POTTER, "KVadim"));
+    }
+
+    @Disabled("We should be able to give and take back similar books from different users")
+    @Test
+    void twoPersonsBorrowSimilarBook() {
+        Mockito.when(userService.isUserActive(Mockito.any())).thenReturn(true);
+        libraryManager.addBook(HARRY_POTTER, 2);
+        Assertions.assertTrue(libraryManager.borrowBook(HARRY_POTTER, "Vadim"));
+        Assertions.assertTrue(libraryManager.borrowBook(HARRY_POTTER, "KVadim"));
+        Assertions.assertTrue(libraryManager.returnBook(HARRY_POTTER, "Vadim"));
+        Assertions.assertTrue(libraryManager.returnBook(HARRY_POTTER, "KVadim"));
     }
 
     @Test
@@ -109,7 +121,7 @@ class LibraryManagerTest {
     }
 
     @Test
-    void notificationDueToInactiveAccount(){
+    void notificationDueToInactiveAccount() {
         Mockito.when(userService.isUserActive(Mockito.any())).thenReturn(false);
         libraryManager.borrowBook(HARRY_POTTER, "user");
         Mockito.verify(notificationService, Mockito.times(1))
@@ -117,7 +129,7 @@ class LibraryManagerTest {
     }
 
     @Test
-    void notifyUserInCaseOfSuccessfulBorrow(){
+    void notifyUserInCaseOfSuccessfulBorrow() {
         Mockito.when(userService.isUserActive(Mockito.any())).thenReturn(true);
         libraryManager.addBook(HARRY_POTTER, 1);
         libraryManager.borrowBook(HARRY_POTTER, "user");
@@ -126,7 +138,7 @@ class LibraryManagerTest {
     }
 
     @Test
-    void notifyUserInCaseOfReturningABook(){
+    void notifyUserInCaseOfReturningABook() {
         Mockito.when(userService.isUserActive(Mockito.any())).thenReturn(true);
         libraryManager.addBook(HARRY_POTTER, 1);
         libraryManager.borrowBook(HARRY_POTTER, "user");
